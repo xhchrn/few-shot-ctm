@@ -23,4 +23,4 @@ test:
 ctrl:
     method: 'all_new'   # keep it in all new experiments
     eager: 0
-    note: 'config file: {:s}'
+#    note: 'config file: {:s}'

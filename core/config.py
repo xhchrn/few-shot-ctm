@@ -259,7 +259,7 @@ class Config(object):
             del self.fsl['triplet']
             del self.fsl['meta_learn']
             if self.ctmnet.dnet:
-                self.ctmnet.pop('baseline_manner', None)
+                del self.ctmnet['baseline_manner']
             else:
                 # del self.ctmnet['dnet_supp_manner']
                 del self.ctmnet['use_discri_loss']
