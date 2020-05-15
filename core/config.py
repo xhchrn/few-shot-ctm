@@ -39,6 +39,7 @@ class Config(object):
     ctmnet.baseline_manner = ''     # 'sample_wise', 'sum', 'no_reshaper'
     ctmnet.dnet = True
     ctmnet.dnet_out_c = 40
+    ctmnet.dnet_supp_manner = '1'
 
     # ==============
     io = AttrDict()
@@ -258,7 +259,7 @@ class Config(object):
             del self.fsl['triplet']
             del self.fsl['meta_learn']
             if self.ctmnet.dnet:
-                del self.ctmnet['baseline_manner']
+                self.ctmnet.pop('baseline_manner', None)
             else:
                 # del self.ctmnet['dnet_supp_manner']
                 del self.ctmnet['use_discri_loss']
