@@ -247,7 +247,7 @@ class Config(object):
             #     assert self.train.batch_sz == 1
             self.mlearn.outer_lr = self.mlearn.lr_fac * self.train.lr
         else:
-            self.fsl.meta_learn == 'nope'
+            self.fsl.meta_learn = 'nope'
             del self.mlearn
 
         if self.data.use_ori_relation:
