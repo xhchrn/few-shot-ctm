@@ -32,6 +32,7 @@ class Config(object):
     fsl.k_shot = [5]
     fsl.k_query = [5]
     fsl.epoch_schedule = [10, 30, 40]
+    fsl.swap = False
     # fsl.triplet = False
 
     # ==============
