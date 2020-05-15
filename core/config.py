@@ -32,6 +32,7 @@ class Config(object):
     fsl.k_shot = [5]
     fsl.k_query = [5]
     fsl.epoch_schedule = [10, 30, 40]
+    # fsl.triplet = False
 
     # ==============
     ctmnet = AttrDict()
@@ -219,14 +220,14 @@ class Config(object):
         if self.train.lr_policy != 'multi_step':
             del self.train['lr_scheduler']
 
-        if not self.fsl.triplet:
-            del self.tri
-        if self.fsl.triplet and self.tri.use_tri_only:
-            # self.tri.test_source = 'n/a'
-            del self.tri['loss_fac']
-            del self.tri['test_source']
-        if self.fsl.triplet and self.tri.method == 'ratio':
-            del self.tri['margin']
+        # if not self.fsl.triplet:
+        #     del self.tri
+        # if self.fsl.triplet and self.tri.use_tri_only:
+        #     # self.tri.test_source = 'n/a'
+        #     del self.tri['loss_fac']
+        #     del self.tri['test_source']
+        # if self.fsl.triplet and self.tri.method == 'ratio':
+        #     del self.tri['margin']
 
         if self.test.manner == 'same_as_train':
             del self.test['ep_num']
@@ -256,7 +257,7 @@ class Config(object):
             # use new pipeline
             del self.fsl['CE_loss']
             del self.fsl['hier']
-            del self.fsl['triplet']
+            # del self.fsl['triplet']
             del self.fsl['meta_learn']
             if self.ctmnet.dnet:
                 del self.ctmnet['baseline_manner']
