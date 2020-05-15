@@ -208,8 +208,8 @@ class CTMNet(nn.Module):
         if self.opts.fsl.ctm:
             # use forward_CTM method
             self.use_relation_net = self.opts.ctmnet.CE_use_relation
-            self.dnet = self.opts.ctmnet.dnet                            # dnet or baseline
-            self.dnet_out_c = self.opts.ctmnet.dnet_out_c                # define the reshaper
+            self.dnet = self.opts.ctmnet.dnet              # dnet or baseline
+            self.dnet_out_c = self.opts.ctmnet.dnet_out_c  # define the reshaper
             try:
                 self.baseline_manner = self.opts.ctmnet.baseline_manner
             except:
@@ -399,8 +399,7 @@ class CTMNet(nn.Module):
                           kernel_size=1, stride=stride, bias=False),
                 nn.BatchNorm2d(planes * block.expansion),
             )
-        layers = []
-        layers.append(block(self.inplanes, planes, stride, downsample))
+        layers = [block(self.inplanes, planes, stride, downsample)]
         self.inplanes = planes * block.expansion
         for i in range(1, blocks):
             layers.append(block(self.inplanes, planes))

@@ -38,6 +38,7 @@ class Config(object):
     ctmnet.CE_use_relation = False
     ctmnet.baseline_manner = ''     # 'sample_wise', 'sum', 'no_reshaper'
     ctmnet.dnet = True
+    ctmnet.dnet_out_c = 40
 
     # ==============
     io = AttrDict()
@@ -259,7 +260,7 @@ class Config(object):
             if self.ctmnet.dnet:
                 del self.ctmnet['baseline_manner']
             else:
-                del self.ctmnet['dnet_supp_manner']
+                # del self.ctmnet['dnet_supp_manner']
                 del self.ctmnet['use_discri_loss']
                 del self.ctmnet['discri_random_target']
                 del self.ctmnet['discri_test_update']
