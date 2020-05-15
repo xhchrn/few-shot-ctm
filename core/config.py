@@ -248,7 +248,10 @@ class Config(object):
             self.mlearn.outer_lr = self.mlearn.lr_fac * self.train.lr
         else:
             self.fsl.meta_learn = 'nope'
-            del self.mlearn
+            try:
+                del self.mlearn
+            except:
+                pass
 
         if self.data.use_ori_relation:
             assert not self.data.change_on_every_ep
