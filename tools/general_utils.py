@@ -315,7 +315,7 @@ def _merge_a_into_b(a, b, stack=None):
     for k, v_ in a.items():
         full_key = '.'.join(stack) + '.' + k if stack is not None else k
         # a must specify keys that are in b
-        if k not in b:
+        if full_key not in b:
             # if _key_is_deprecated(full_key):
             #     continue
             # elif _key_is_renamed(full_key):
