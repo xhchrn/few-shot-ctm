@@ -260,20 +260,20 @@ class Config(object):
             del self.ctmnet
         else:
             # use new pipeline
-            del self.fsl['CE_loss']
-            del self.fsl['hier']
+            self.fsl.pop('CE_loss', None)
+            self.fsl.pop('hier', None)
             # del self.fsl['triplet']
-            del self.fsl['meta_learn']
+            self.fsl.pop('meta_learn', None)
             if self.ctmnet.dnet:
-                del self.ctmnet['baseline_manner']
+                self.ctmnet.pop('baseline_manner', None)
             else:
                 # del self.ctmnet['dnet_supp_manner']
-                del self.ctmnet['use_discri_loss']
-                del self.ctmnet['discri_random_target']
-                del self.ctmnet['discri_test_update']
-                del self.ctmnet['discri_random_weight']
-                del self.ctmnet['dnet_mp_mean']
-                del self.ctmnet['dnet_delete_mp']
+                self.ctmnet.pop('use_discri_loss', None)
+                self.ctmnet.pop('discri_random_target', None)
+                self.ctmnet.pop('discri_test_update', None)
+                self.ctmnet.pop('discri_random_weight', None)
+                self.ctmnet.pop('dnet_mp_mean', None)
+                self.ctmnet.pop('dnet_delete_mp', None)
 
         if self.ctrl.pretrain:
             try:
