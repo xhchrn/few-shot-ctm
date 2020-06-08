@@ -218,6 +218,7 @@ class CTMNet(nn.Module):
 
         self.opts = opts
         self.mp_mean = False
+        self.delete_mp = False
         if self.opts.fsl.ctm:
             # use forward_CTM method
             self.use_relation_net = self.opts.ctmnet.CE_use_relation
