@@ -134,7 +134,7 @@ def run_test(opts, val_db, net, vis, **args):
     eqn = '>' if accuracy > best_accuracy else '<'
     _curr_str = '\t\tCurrent {:s} accuracy is {:.4f} {:s} ' \
                 'previous best accuracy is {:.4f} (ep{}, iter{})'.format(
-        accuracy, eqn, best_accuracy, last_epoch, last_iter)
+                    'evaluation', accuracy, eqn, best_accuracy, last_epoch, last_iter)
     opts.logger(_curr_str)
 
     # Also test the train-accuracy at end of one epoch
