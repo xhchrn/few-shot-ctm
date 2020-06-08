@@ -267,7 +267,7 @@ class Config(object):
             if self.ctmnet.dnet:
                 self.ctmnet.pop('baseline_manner', None)
             else:
-                # del self.ctmnet['dnet_supp_manner']
+                self.ctmnet.pop('dnet_supp_manner', None)
                 self.ctmnet.pop('use_discri_loss', None)
                 self.ctmnet.pop('discri_random_target', None)
                 self.ctmnet.pop('discri_test_update', None)

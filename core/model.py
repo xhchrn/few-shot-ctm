@@ -6,6 +6,7 @@ from torch import nn
 from torch.nn import functional as F
 from torch.utils import model_zoo
 from copy import deepcopy
+from .resnet12 import resnet12
 
 
 eps = 1e-10
@@ -73,6 +74,14 @@ class MyLinear(nn.Module):
         return 'in_features={}, out_features={}, bias={}'.format(
             self.in_features, self.out_features, self.bias is not None
         )
+
+
+class BasicBlock(nn.Module):
+    expansion = 1
+
+    def __init__(self, inplanes, planes, stride=1, downsample=None):
+        super(BasicBlock, self).__init__()
+        self.conv1 = nn.Conv2d(inplanes, planes, kernel_size=3, bias=False)
 
 
 class Bottleneck(nn.Module):
@@ -184,6 +193,9 @@ def feat_extract(pretrained=False, **kwargs):
         model = ResNet(Bottleneck, [3, 4, 6], kwargs['in_c'])
     elif kwargs['structure'] == 'resnet19':
         model = ResNet(Bottleneck, [2, 2, 2], kwargs['in_c'])
+    elif kwargs['structure'] == 'resnet12':
+        dropblock_size = 5 if 'imagenet' in kwargs['opt'].dataset.name else 2
+        model = resnet12(avg_pool=False, drop_rate=0.1, dropblock_size=dropblock_size)
     elif kwargs['structure'] == 'resnet52':
         model = ResNet(Bottleneck, [4, 8, 5], kwargs['in_c'])
     elif kwargs['structure'] == 'resnet34':
@@ -223,7 +235,7 @@ class CTMNet(nn.Module):
             self.opts.model.resnet_pretrain,
             opts=opts, structure=opts.model.structure, in_c=in_c)
 
-        input_bs = opts.fsl.n_way[0]*opts.fsl.k_shot[0]
+        input_bs = opts.fsl.n_way[0] * opts.fsl.k_shot[0]
         random_input = torch.rand(input_bs, in_c, opts.data.im_size, opts.data.im_size)
         repnet_out = self.repnet(random_input)
         repnet_sz = repnet_out.size()
@@ -245,8 +257,9 @@ class CTMNet(nn.Module):
                 )
 
             # RESHAPER
-            if not (not self.dnet and self.baseline_manner == 'no_reshaper'):
-                assert np.mod(self.dnet_out_c, 4) == 0
+            # if not (not self.dnet and self.baseline_manner == 'no_reshaper'):
+            if self.dnet or self.baseline_manner != 'no_reshaper':
+                assert np.mod(self.dnet_out_c, 4) == 0  # 4 is the 'expansion' of Bottleneck
                 out_size = int(self.dnet_out_c / 4)
                 self.inplanes = _embedding.size(1)
                 if self.opts.model.structure.startswith('resnet'):
@@ -264,7 +277,7 @@ class CTMNet(nn.Module):
                     self.inplanes = _embedding.size(1)
                 else:
                     # concatenate along the channel for all samples in each class
-                    self.inplanes = self.opts.fsl.k_shot[0]*_embedding.size(1)
+                    self.inplanes = self.opts.fsl.k_shot[0] * _embedding.size(1)
                 if self.opts.model.structure.startswith('resnet'):
                     self.main_component = nn.Sequential(
                         self._make_layer(Bottleneck, out_size*2, 3, stride=1),
@@ -278,10 +291,10 @@ class CTMNet(nn.Module):
                     assert self.opts.fsl.k_shot[0] == 1
                     del self.main_component
                     # input_c for Projector, no mp
-                    self.inplanes = self.opts.fsl.n_way[0]*_embedding.size(1)
+                    self.inplanes = self.opts.fsl.n_way[0] * _embedding.size(1)
                 else:
                     # input_c for Projector, has mp
-                    self.inplanes = self.opts.fsl.n_way[0]*out_size*4
+                    self.inplanes = self.opts.fsl.n_way[0] * out_size * 4
 
                 if self.opts.model.structure.startswith('resnet'):
                     self.projection = nn.Sequential(
@@ -420,22 +433,27 @@ class CTMNet(nn.Module):
 
         # 1. FEATURE EXTRACTION (FOR NOW DISABLE SWAP)
         # support_sz (25), c (64), d (19), d (19)
-        support_xf_ori = self.repnet(support_x.view(batch_sz*support_sz, -1, _d, _d))
+        support_xf_ori = self.repnet(support_x.view(batch_sz * support_sz, -1, _d, _d))
         # query_sz (75), c (64), d (19), d (19)
-        query_xf_ori = self.repnet(query_x.view(batch_sz*query_sz, -1, _d, _d))
+        query_xf_ori = self.repnet(query_x.view(batch_sz * query_sz, -1, _d, _d))
 
         if self.dnet:
             if not self.delete_mp:
                 if not self.mp_mean:
-                    support_xf_reshape = support_xf_ori.view(n_way, -1, support_xf_ori.size(2), support_xf_ori.size(3))
+                    support_xf_reshape = support_xf_ori.view(
+                        n_way, -1, support_xf_ori.size(2), support_xf_ori.size(3))
                 else:
                     support_xf_reshape = support_xf_ori
-                mp = self.main_component(support_xf_reshape)                # 5(n_way), 64, 3, 3
+                mp = self.main_component(support_xf_reshape)  # 5(n_way), 64, 3, 3
                 if self.mp_mean:
-                    mp = torch.mean(mp.view(n_way, k_shot, mp.size(1), mp.size(2), mp.size(2)), dim=1, keepdim=False)
-                _input_P = mp.view(1, -1, mp.size(2), mp.size(3))           # mp -> 1, 5*64, 3, 3
+                    mp = torch.mean(
+                        mp.view(n_way, k_shot, mp.size(1), mp.size(2), mp.size(2)),
+                        dim=1, keepdim=False
+                    )
+                _input_P = mp.view(1, -1, mp.size(2), mp.size(3))  # mp -> 1, 5*64, 3, 3
             else:
-                _input_P = support_xf_ori.view(1, -1, support_xf_ori.size(2), support_xf_ori.size(3))
+                _input_P = support_xf_ori.view(
+                    1, -1, support_xf_ori.size(2), support_xf_ori.size(3))
 
             # for P: consider all components
             P = self.projection(_input_P)                                   # 1, 64, 3, 3

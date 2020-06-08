@@ -65,9 +65,14 @@ def data_loader(opts):
         opts.logger('Train data ...')
         train_data = miniImagenet(
             root=relative_path,
-            n_way=opts.fsl.n_way[0], k_shot=opts.fsl.k_shot[0], k_query=opts.fsl.k_query[0],
-            resize=opts.data.im_size, augment=opts.data.augment,
-            split='train', test=opts.test)
+            n_way=opts.fsl.n_way[0],
+            k_shot=opts.fsl.k_shot[0],
+            k_query=opts.fsl.k_query[0],
+            resize=opts.data.im_size,
+            augment=opts.data.augment,
+            split='train',
+            test=opts.test
+        )
         opts.logger('\t\tFind {:d} samples'.format(train_data.total_sample))
         opts.logger('\t\tFind {:d} classes'.format(train_data.cls_num))
         train_data = [train_data]
