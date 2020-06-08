@@ -194,7 +194,7 @@ def feat_extract(pretrained=False, **kwargs):
     elif kwargs['structure'] == 'resnet19':
         model = ResNet(Bottleneck, [2, 2, 2], kwargs['in_c'])
     elif kwargs['structure'] == 'resnet12':
-        dropblock_size = 5 if 'imagenet' in kwargs['opt'].dataset.name else 2
+        dropblock_size = 5 if 'imagenet' in kwargs['opts'].dataset.name else 2
         model = resnet12(avg_pool=False, drop_rate=0.1, dropblock_size=dropblock_size)
     elif kwargs['structure'] == 'resnet52':
         model = ResNet(Bottleneck, [4, 8, 5], kwargs['in_c'])
