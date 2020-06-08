@@ -18,7 +18,9 @@ class DropBlock(nn.Module):
         if self.training:
             batch_size, channels, height, width = x.shape
             
-            bernoulli = Bernoulli(gamma).cuda()
+            # bernoulli = Bernoulli(gamma).cuda()
+            bernoulli = Bernoulli(gamma)
+
             mask = bernoulli.sample((batch_size, channels, height - (self.block_size - 1), width - (self.block_size - 1))).cuda()
             #print((x.sample[-2], x.sample[-1]))
             block_mask = self._compute_block_mask(mask)
