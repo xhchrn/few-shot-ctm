@@ -233,7 +233,7 @@ class CTMNet(nn.Module):
         in_c = 1 if opts.dataset.name == 'omniglot' else 3
         self.repnet = feat_extract(
             self.opts.model.resnet_pretrain,
-            opts=opts, structure=opts.model.structure, in_c=in_c)
+            opts=opts, structure=opts.model.structure, in_c=in_c).to(self.opts.ctrl.device)
 
         input_bs = opts.fsl.n_way[0] * opts.fsl.k_shot[0]
         random_input = torch.rand(input_bs, in_c, opts.data.im_size, opts.data.im_size).to(self.opts.ctrl.device)
@@ -254,7 +254,7 @@ class CTMNet(nn.Module):
                     nn.Conv2d(input_c, input_c, kernel_size=3, padding=1),
                     nn.BatchNorm2d(input_c, momentum=1, affine=True),
                     nn.ReLU()
-                )
+                ).to(self.opts.ctrl.device)
 
             # RESHAPER
             # if not (not self.dnet and self.baseline_manner == 'no_reshaper'):
@@ -266,9 +266,9 @@ class CTMNet(nn.Module):
                     self.reshaper = nn.Sequential(
                         self._make_layer(Bottleneck, out_size*2, 3, stride=1),
                         self._make_layer(Bottleneck, out_size, 2, stride=1)
-                    )
+                    ).to(self.opts.ctrl.device)
                 else:
-                    self.reshaper = self._make_layer(Bottleneck, out_size, 4, stride=1)
+                    self.reshaper = self._make_layer(Bottleneck, out_size, 4, stride=1).to(self.opts.ctrl.device)
                 _out_downsample = self.reshaper(_embedding)
 
             # CONCENTRATOR AND PROJECTOR
@@ -282,9 +282,9 @@ class CTMNet(nn.Module):
                     self.main_component = nn.Sequential(
                         self._make_layer(Bottleneck, out_size*2, 3, stride=1),
                         self._make_layer(Bottleneck, out_size, 2, stride=1)
-                    )
+                    ).to(self.opts.ctrl.device)
                 else:
-                    self.main_component = self._make_layer(Bottleneck, out_size, 4, stride=1)
+                    self.main_component = self._make_layer(Bottleneck, out_size, 4, stride=1).to(self.opts.ctrl.device)
 
                 # projector
                 if self.delete_mp:
@@ -300,9 +300,9 @@ class CTMNet(nn.Module):
                     self.projection = nn.Sequential(
                         self._make_layer(Bottleneck, out_size*2, 3, stride=1),
                         self._make_layer(Bottleneck, out_size, 2, stride=1)
-                    )
+                    ).to(self.opts.ctrl.device)
                 else:
-                    self.projection = self._make_layer(Bottleneck, out_size, 4, stride=1)
+                    self.projection = self._make_layer(Bottleneck, out_size, 4, stride=1).to(self.opts.ctrl.device)
 
             # RELATION METRIC
             if self.use_relation_net:
@@ -328,20 +328,20 @@ class CTMNet(nn.Module):
                         nn.BatchNorm1d(_half),
                         nn.ReLU(inplace=True),
                         nn.Linear(_half, 1)
-                    )
+                    ).to(self.opts.ctrl.device)
                 elif self.opts.model.relation_net == 'simple':
                     input_c = 2 * _input.size(1)
                     self.relation1 = nn.Sequential(
                         nn.Conv2d(input_c, 64, kernel_size=3, padding=1),
                         nn.BatchNorm2d(64, momentum=1, affine=True),
                         nn.ReLU(),
-                        nn.MaxPool2d(2))
+                        nn.MaxPool2d(2)).to(self.opts.ctrl.device)
                     self.relation2 = nn.Sequential(
                         nn.Conv2d(64, 64, kernel_size=3, padding=1),
                         nn.BatchNorm2d(64, momentum=1, affine=True),
                         nn.ReLU(),
                         # nn.MaxPool2d(2)
-                    )
+                    ).to(self.opts.ctrl.device)
 
                     _combine = torch.stack([_input, _input], dim=1).view(
                         _input.size(0), -1, _input.size(2), _input.size(3))
