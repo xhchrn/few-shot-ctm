@@ -192,8 +192,8 @@ class Config(object):
         self.logger('gpu_ids: {}\n'.format(self.ctrl.gpu_id))
         self.ctrl.multi_gpu = multi_gpu
         # for demo purpose
-        self.ctrl.device = 'cpu'
-        # self.ctrl.device = 'cuda'
+        # self.ctrl.device = 'cpu'
+        self.ctrl.device = 'cuda'
 
     def _sanity_check(self):
 
