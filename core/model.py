@@ -236,7 +236,7 @@ class CTMNet(nn.Module):
             opts=opts, structure=opts.model.structure, in_c=in_c)
 
         input_bs = opts.fsl.n_way[0] * opts.fsl.k_shot[0]
-        random_input = torch.rand(input_bs, in_c, opts.data.im_size, opts.data.im_size)
+        random_input = torch.rand(input_bs, in_c, opts.data.im_size, opts.data.im_size).to(self.opts.ctrl.device)
         repnet_out = self.repnet(random_input)
         repnet_sz = repnet_out.size()
         assert repnet_sz[2] == repnet_sz[3]
