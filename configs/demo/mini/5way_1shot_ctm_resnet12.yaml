@@ -13,8 +13,8 @@ ctmnet:
 #    use_discri_loss: False
 fsl:
     ctm: True
-    n_way: [20]
-    k_shot: [1]
+    n_way: [5]
+    k_shot: [5]
     k_query: [8]
 train:
     clip_grad: True
