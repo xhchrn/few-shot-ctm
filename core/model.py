@@ -219,6 +219,7 @@ class CTMNet(nn.Module):
         self.opts = opts
         self.mp_mean = False
         self.delete_mp = False
+        self.dnet_supp_manner = opts.ctmnet.dnet_supp_manner
         if self.opts.fsl.ctm:
             # use forward_CTM method
             self.use_relation_net = self.opts.ctmnet.CE_use_relation
@@ -461,14 +462,14 @@ class CTMNet(nn.Module):
             P = self.projection(_input_P)                                   # 1, 64, 3, 3
             P = F.softmax(P, dim=1)
             if self.dnet_supp_manner == '2' or self.dnet_supp_manner == '3':
-                mp_modified = torch.matmul(mp, P)                           # 5, 64, 3, 3
+                mp_modified = torch.matmul(mp, P)  # 5, 64, 3, 3
 
             if self.dnet_supp_manner == '1':
                 v = self.reshaper(support_xf_ori)
                 v = torch.matmul(v, P)
             elif self.dnet_supp_manner == '2':
-                v = self.reshaper(support_xf_ori)                           # 25, 64, 3, 3
-                v = v.view(n_way, -1, v.size(1), v.size(2), v.size(3))      # 5, 5(k_shot), 64, 3, 3
+                v = self.reshaper(support_xf_ori)  # 25, 64, 3, 3
+                v = v.view(n_way, -1, v.size(1), v.size(2), v.size(3))  # 5, 5(k_shot), 64, 3, 3
                 v = torch.matmul(v, mp_modified.unsqueeze(1)).view(support_sz, v.size(2), v.size(3), v.size(3))
             elif self.dnet_supp_manner == '3':
                 v = mp_modified
